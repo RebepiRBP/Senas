@@ -127,40 +127,53 @@ export const useHandDetection = (
   }, [drawLandmarks, onLandmarksDetected, updatePerformanceStats])
 
   useEffect(() => {
+    let mounted = true
+
     const initializeHands = async () => {
       try {
         setIsLoading(true)
         setError(null)
 
-        const handsModule = await import('@mediapipe/hands')
-        const { Hands } = handsModule
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js'
+        script.crossOrigin = 'anonymous'
+        
+        const loadPromise = new Promise((resolve, reject) => {
+          script.onload = () => resolve(null)
+          script.onerror = () => reject(new Error('Failed to load MediaPipe script'))
+        })
 
-        if (!Hands) {
-          throw new Error('Hands constructor not available')
-        }
+        document.head.appendChild(script)
+        await loadPromise
 
-        const handsInstance = new Hands({
-          locateFile: (file) => {
+        if (!mounted) return
+
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        const handsInstance = new (window as any).Hands({
+          locateFile: (file: string) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
           }
         })
 
+        if (!mounted) return
+
         const config = {
           fast: {
             maxNumHands: 2,
-            modelComplexity: 1 as 1,
+            modelComplexity: 1,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
           },
           accurate: {
             maxNumHands: 2,
-            modelComplexity: 1 as 1,
+            modelComplexity: 1,
             minDetectionConfidence: 0.8,
             minTrackingConfidence: 0.8
           },
           hybrid: {
             maxNumHands: 2,
-            modelComplexity: 1 as 1,
+            modelComplexity: 1,
             minDetectionConfidence: 0.7,
             minTrackingConfidence: 0.6
           }
@@ -169,18 +182,23 @@ export const useHandDetection = (
         handsInstance.setOptions(config[mode])
         handsInstance.onResults(onResults)
 
-        setHands(handsInstance)
-        setIsLoading(false)
+        if (mounted) {
+          setHands(handsInstance)
+          setIsLoading(false)
+        }
       } catch (err: any) {
         console.error('MediaPipe initialization error:', err)
-        setError('Error al cargar MediaPipe. Verifica tu conexión a internet.')
-        setIsLoading(false)
+        if (mounted) {
+          setError('Error al cargar MediaPipe. Verifica tu conexión a internet.')
+          setIsLoading(false)
+        }
       }
     }
 
     initializeHands()
 
     return () => {
+      mounted = false
       if (hands && typeof hands.close === 'function') hands.close()
     }
   }, [mode, onResults])

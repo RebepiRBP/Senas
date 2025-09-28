@@ -18,15 +18,12 @@ export default defineConfig({
     },
   },
   build: {
+    target: 'es2015',
     rollupOptions: {
-      output: {
-        manualChunks: {
-          'mediapipe': ['@mediapipe/hands']
-        }
-      }
+      external: ['@mediapipe/hands']
     }
   },
-  optimizeDeps: {
-    exclude: ['@mediapipe/hands']
+  define: {
+    global: 'globalThis',
   }
 })
