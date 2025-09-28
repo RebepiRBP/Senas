@@ -20,7 +20,7 @@ export default defineConfig({
   build: {
     target: 'es2015',
     rollupOptions: {
-      external: ['@mediapipe/hands']
+      external: ['@mediapipe/hands', '@mediapipe/camera_utils', '@mediapipe/control_utils']
     }
   },
   define: {

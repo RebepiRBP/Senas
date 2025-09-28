@@ -129,30 +129,54 @@ export const useHandDetection = (
   useEffect(() => {
     let mounted = true
 
-    const initializeHands = async () => {
+    const loadMediaPipeScripts = async () => {
       try {
         setIsLoading(true)
         setError(null)
 
-        const script = document.createElement('script')
-        script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js'
-        script.crossOrigin = 'anonymous'
-        
-        const loadPromise = new Promise((resolve, reject) => {
-          script.onload = () => resolve(null)
-          script.onerror = () => reject(new Error('Failed to load MediaPipe script'))
+        const existingScript = document.querySelector('script[src*="camera_utils"]')
+        if (existingScript) {
+          existingScript.remove()
+        }
+
+        await new Promise((resolve, reject) => {
+          const cameraScript = document.createElement('script')
+          cameraScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js'
+          cameraScript.crossOrigin = 'anonymous'
+          cameraScript.onload = () => resolve(null)
+          cameraScript.onerror = () => reject(new Error('Failed to load camera_utils'))
+          document.head.appendChild(cameraScript)
         })
 
-        document.head.appendChild(script)
-        await loadPromise
+        await new Promise((resolve, reject) => {
+          const controlScript = document.createElement('script')
+          controlScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js'
+          controlScript.crossOrigin = 'anonymous'
+          controlScript.onload = () => resolve(null)
+          controlScript.onerror = () => reject(new Error('Failed to load control_utils'))
+          document.head.appendChild(controlScript)
+        })
+
+        await new Promise((resolve, reject) => {
+          const handsScript = document.createElement('script')
+          handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js'
+          handsScript.crossOrigin = 'anonymous'
+          handsScript.onload = () => resolve(null)
+          handsScript.onerror = () => reject(new Error('Failed to load hands'))
+          document.head.appendChild(handsScript)
+        })
 
         if (!mounted) return
 
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        if (!(window as any).Hands) {
+          throw new Error('Hands constructor not available')
+        }
 
         const handsInstance = new (window as any).Hands({
           locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
           }
         })
 
@@ -195,7 +219,7 @@ export const useHandDetection = (
       }
     }
 
-    initializeHands()
+    loadMediaPipeScripts()
 
     return () => {
       mounted = false
