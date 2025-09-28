@@ -11,7 +11,7 @@ export const useHandDetection = (
   const [error, setError] = useState<string | null>(null)
   const [hands, setHands] = useState<any>(null)
   const [performanceStats, setPerformanceStats] = useState({ fps: 0, avgProcessingTime: 0 })
-
+  
   const lastProcessTime = useRef(0)
   const isProcessing = useRef(false)
   const frameCount = useRef(0)
@@ -21,7 +21,7 @@ export const useHandDetection = (
   const drawLandmarks = useCallback((results: any) => {
     const canvas = canvasRef.current
     const video = videoRef.current
-
+    
     if (!canvas || !video) return
 
     const ctx = canvas.getContext('2d')
@@ -48,13 +48,13 @@ export const useHandDetection = (
         for (const [start, end] of connections) {
           const startLandmark = handLandmarks[start]
           const endLandmark = handLandmarks[end]
-
+          
           if (startLandmark && endLandmark) {
             const startX = (1 - startLandmark.x) * canvas.width
             const startY = startLandmark.y * canvas.height
             const endX = (1 - endLandmark.x) * canvas.width
             const endY = endLandmark.y * canvas.height
-
+            
             ctx.moveTo(startX, startY)
             ctx.lineTo(endX, endY)
           }
@@ -65,11 +65,11 @@ export const useHandDetection = (
           const landmark = handLandmarks[i]
           const x = (1 - landmark.x) * canvas.width
           const y = landmark.y * canvas.height
-
+          
           ctx.beginPath()
           ctx.arc(x, y, 3, 0, 2 * Math.PI)
           ctx.fill()
-
+          
           if ([0, 4, 8, 12, 16, 20].includes(i)) {
             ctx.beginPath()
             ctx.arc(x, y, 5, 0, 2 * Math.PI)
@@ -87,16 +87,16 @@ export const useHandDetection = (
   const updatePerformanceStats = useCallback((processingTime: number) => {
     frameCount.current++
     processingTimes.current.push(processingTime)
-
+    
     if (processingTimes.current.length > 30) {
       processingTimes.current.shift()
     }
-
+    
     const now = Date.now()
     if (now - lastFpsUpdate.current >= 1000) {
       const fps = frameCount.current
       const avgProcessingTime = processingTimes.current.reduce((a, b) => a + b, 0) / processingTimes.current.length
-
+      
       setPerformanceStats({ fps, avgProcessingTime })
       frameCount.current = 0
       lastFpsUpdate.current = now
@@ -105,9 +105,9 @@ export const useHandDetection = (
 
   const onResults = useCallback((results: any) => {
     const processingStartTime = window.performance.now()
-
+    
     const detectedLandmarks = results.multiHandLandmarks || []
-
+    
     const processedLandmarks = detectedLandmarks.map((handLandmarks: any) => {
       return handLandmarks.map((landmark: any) => ({
         x: landmark.x,
@@ -119,85 +119,43 @@ export const useHandDetection = (
     setLandmarks(processedLandmarks)
     onLandmarksDetected?.(processedLandmarks)
     drawLandmarks(results)
-
+    
     const processingTime = window.performance.now() - processingStartTime
     updatePerformanceStats(processingTime)
-
+    
     isProcessing.current = false
   }, [drawLandmarks, onLandmarksDetected, updatePerformanceStats])
 
   useEffect(() => {
-    let mounted = true
-
-    const loadMediaPipeScripts = async () => {
+    const initializeHands = async () => {
       try {
         setIsLoading(true)
         setError(null)
-
-        const existingScript = document.querySelector('script[src*="camera_utils"]')
-        if (existingScript) {
-          existingScript.remove()
-        }
-
-        await new Promise((resolve, reject) => {
-          const cameraScript = document.createElement('script')
-          cameraScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js'
-          cameraScript.crossOrigin = 'anonymous'
-          cameraScript.onload = () => resolve(null)
-          cameraScript.onerror = () => reject(new Error('Failed to load camera_utils'))
-          document.head.appendChild(cameraScript)
-        })
-
-        await new Promise((resolve, reject) => {
-          const controlScript = document.createElement('script')
-          controlScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js'
-          controlScript.crossOrigin = 'anonymous'
-          controlScript.onload = () => resolve(null)
-          controlScript.onerror = () => reject(new Error('Failed to load control_utils'))
-          document.head.appendChild(controlScript)
-        })
-
-        await new Promise((resolve, reject) => {
-          const handsScript = document.createElement('script')
-          handsScript.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js'
-          handsScript.crossOrigin = 'anonymous'
-          handsScript.onload = () => resolve(null)
-          handsScript.onerror = () => reject(new Error('Failed to load hands'))
-          document.head.appendChild(handsScript)
-        })
-
-        if (!mounted) return
-
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        if (!(window as any).Hands) {
-          throw new Error('Hands constructor not available')
-        }
-
-        const handsInstance = new (window as any).Hands({
-          locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        
+        const { Hands } = await import('@mediapipe/hands')
+        
+        const handsInstance = new Hands({
+          locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
           }
         })
-
-        if (!mounted) return
 
         const config = {
           fast: {
             maxNumHands: 2,
-            modelComplexity: 1,
+            modelComplexity: 1 as 1,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
           },
           accurate: {
             maxNumHands: 2,
-            modelComplexity: 1,
+            modelComplexity: 1 as 1,
             minDetectionConfidence: 0.8,
             minTrackingConfidence: 0.8
           },
           hybrid: {
             maxNumHands: 2,
-            modelComplexity: 1,
+            modelComplexity: 1 as 1,
             minDetectionConfidence: 0.7,
             minTrackingConfidence: 0.6
           }
@@ -205,24 +163,18 @@ export const useHandDetection = (
 
         handsInstance.setOptions(config[mode])
         handsInstance.onResults(onResults)
-
-        if (mounted) {
-          setHands(handsInstance)
-          setIsLoading(false)
-        }
+        setHands(handsInstance)
+        setIsLoading(false)
       } catch (err: any) {
         console.error('MediaPipe initialization error:', err)
-        if (mounted) {
-          setError('Error al cargar MediaPipe. Verifica tu conexión a internet.')
-          setIsLoading(false)
-        }
+        setError('Error al cargar MediaPipe. Verifica tu conexión a internet.')
+        setIsLoading(false)
       }
     }
 
-    loadMediaPipeScripts()
+    initializeHands()
 
     return () => {
-      mounted = false
       if (hands && typeof hands.close === 'function') hands.close()
     }
   }, [mode, onResults])
@@ -231,14 +183,13 @@ export const useHandDetection = (
     if (!hands || isLoading) return
 
     let animationId: number
-
     const targetFps = mode === 'fast' ? 30 : mode === 'accurate' ? 15 : 20
     const frameInterval = 1000 / targetFps
 
     const processVideo = async () => {
       const video = videoRef.current
       const now = Date.now()
-
+      
       if (
         video &&
         video.readyState >= 2 &&
