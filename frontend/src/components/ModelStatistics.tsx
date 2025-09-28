@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts'
-import { Calendar, Users, Database, TrendingUp, Activity, Clock, Info, X, HelpCircle, Zap, Target, BarChart3, PieChart as PieChartIcon, Award, CheckCircle, Star } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { Calendar, Database, TrendingUp, Activity, Clock, Info, X, HelpCircle, Zap, Target, BarChart3, PieChart as PieChartIcon, Award, CheckCircle, Star } from 'lucide-react'
 import { api } from '@/services/api'
 
 interface ModelStatisticsProps {
@@ -461,7 +461,7 @@ export default function ModelStatistics({ modelId, modelName, className = "" }: 
                     label={({ nombre, percent }) => `${nombre} (${(percent * 100).toFixed(1)}%)`}
                     labelLine={false}
                   >
-                    {statistics.labelDistribution.map((entry, index) => (
+                    {statistics.labelDistribution.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
@@ -691,7 +691,7 @@ export default function ModelStatistics({ modelId, modelName, className = "" }: 
                     }
                     labelLine={false}
                   >
-                    {statistics.detectionQuality.map((entry, index) => (
+                    {statistics.detectionQuality.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

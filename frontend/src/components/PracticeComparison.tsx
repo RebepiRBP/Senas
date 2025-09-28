@@ -26,18 +26,18 @@ export default function PracticeComparison({
     averageConfidence: 0,
     practiceTime: 0
   })
-
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null)
   const [showCelebration, setShowCelebration] = useState(false)
   const [lastFeedback, setLastFeedback] = useState<string>('')
   const [lastSpokenResult, setLastSpokenResult] = useState<{isCorrect: boolean, label: string} | null>(null)
+  const [currentResult, setCurrentResult] = useState<{
+    isCorrect: boolean
+    confidence: number
+    prediction: string
+    feedback: string
+  } | null>(null)
 
   const {
-    isCorrect,
-    confidence,
-    feedback,
-    lastPrediction,
-    recentHistory,
     performComparison,
     resetStats
   } = useLearningComparison(modelId, targetLabel)
@@ -55,19 +55,19 @@ export default function PracticeComparison({
   }, [isActive, sessionStartTime])
 
   useEffect(() => {
-    if (feedback !== lastFeedback && feedback) {
-      setLastFeedback(feedback)
+    if (currentResult && currentResult.feedback !== lastFeedback && currentResult.feedback) {
+      setLastFeedback(currentResult.feedback)
       
-      if (isCorrect && confidence > 0.9) {
+      if (currentResult.isCorrect && currentResult.confidence > 0.9) {
         setShowCelebration(true)
         setTimeout(() => setShowCelebration(false), 2000)
       }
 
       const newAttempts = sessionStats.attempts + 1
-      const newSuccesses = isCorrect ? sessionStats.successes + 1 : sessionStats.successes
-      const newStreak = isCorrect ? sessionStats.streak + 1 : 0
+      const newSuccesses = currentResult.isCorrect ? sessionStats.successes + 1 : sessionStats.successes
+      const newStreak = currentResult.isCorrect ? sessionStats.streak + 1 : 0
       const newMaxStreak = Math.max(sessionStats.maxStreak, newStreak)
-      const newAverage = ((sessionStats.averageConfidence * sessionStats.attempts) + confidence) / newAttempts
+      const newAverage = ((sessionStats.averageConfidence * sessionStats.attempts) + currentResult.confidence) / newAttempts
 
       setSessionStats(prev => ({
         ...prev,
@@ -78,20 +78,34 @@ export default function PracticeComparison({
         averageConfidence: newAverage
       }))
 
-      if (lastSpokenResult?.isCorrect !== isCorrect || 
-          lastSpokenResult?.label !== (lastPrediction || targetLabel)) {
-        speakLearningFeedback(isCorrect, targetLabel, lastPrediction)
-        setLastSpokenResult({isCorrect, label: lastPrediction || targetLabel})
+      if (lastSpokenResult?.isCorrect !== currentResult.isCorrect ||
+          lastSpokenResult?.label !== (currentResult.prediction || targetLabel)) {
+        speakLearningFeedback(currentResult.isCorrect, targetLabel, currentResult.prediction)
+        setLastSpokenResult({isCorrect: currentResult.isCorrect, label: currentResult.prediction || targetLabel})
       }
 
-      onStatsUpdate?.(isCorrect, confidence)
+      onStatsUpdate?.(currentResult.isCorrect, currentResult.confidence)
     }
-  }, [isCorrect, confidence, feedback, lastFeedback, lastPrediction, targetLabel, onStatsUpdate, sessionStats, speakLearningFeedback, lastSpokenResult])
+  }, [currentResult, lastFeedback, targetLabel, onStatsUpdate, sessionStats, speakLearningFeedback, lastSpokenResult])
 
-  const handleFrame = useCallback((imageData: string, landmarks: any[]) => {
+  const handleFrame = useCallback(async (landmarks: any[]) => {
     if (!isActive || !landmarks || landmarks.length === 0) return
-    performComparison(landmarks[0])
-  }, [isActive, performComparison])
+
+    try {
+      const result = await performComparison(landmarks[0])
+      if (result) {
+        const isMatch = result.prediction?.toLowerCase() === targetLabel.toLowerCase()
+        setCurrentResult({
+          isCorrect: isMatch,
+          confidence: result.confidence || 0,
+          prediction: result.prediction || '',
+          feedback: isMatch ? '¡Correcto!' : 'Intenta de nuevo'
+        })
+      }
+    } catch (error) {
+      console.error('Error in comparison:', error)
+    }
+  }, [isActive, performComparison, targetLabel])
 
   const handleReset = () => {
     resetStats()
@@ -106,6 +120,7 @@ export default function PracticeComparison({
     setSessionStartTime(null)
     setLastFeedback('')
     setLastSpokenResult(null)
+    setCurrentResult(null)
   }
 
   const successRate = sessionStats.attempts > 0 ? (sessionStats.successes / sessionStats.attempts * 100) : 0
@@ -132,7 +147,7 @@ export default function PracticeComparison({
     <div className="relative">
       <CameraCapture
         ref={cameraRef}
-        onFrame={handleFrame}
+        onFrame={(imageData, landmarks) => handleFrame(landmarks)}
         showLandmarks={true}
         className="h-96 rounded-lg overflow-hidden"
       />
@@ -151,21 +166,21 @@ export default function PracticeComparison({
         <>
           <div className="absolute top-4 right-4 space-y-2">
             <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium border ${
-              isCorrect
+              currentResult?.isCorrect
                 ? 'bg-green-100 text-green-800 border-green-200'
                 : 'bg-red-100 text-red-800 border-red-200'
             }`}>
-              {isCorrect ? (
+              {currentResult?.isCorrect ? (
                 <CheckCircle className="h-4 w-4" />
               ) : (
                 <XCircle className="h-4 w-4" />
               )}
-              <span>{isCorrect ? '¡Correcto!' : 'Sigue practicando'}</span>
+              <span>{currentResult?.isCorrect ? '¡Correcto!' : 'Sigue practicando'}</span>
             </div>
 
-            {confidence > 0 && (
-              <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getConfidenceColor(confidence * 100)}`}>
-                Confianza: {Math.round(confidence * 100)}%
+            {currentResult && currentResult.confidence > 0 && (
+              <div className={`px-3 py-1 rounded-full text-xs font-medium border ${getConfidenceColor(currentResult.confidence * 100)}`}>
+                Confianza: {Math.round(currentResult.confidence * 100)}%
               </div>
             )}
 
@@ -183,7 +198,7 @@ export default function PracticeComparison({
                 <span className="font-medium">Objetivo: {targetLabel}</span>
               </div>
               <div className="text-xs opacity-80">
-                {recentHistory.length > 0 ? `Últimas detecciones: ${recentHistory.length}` : 'Comenzando práctica...'}
+                Práctica en progreso
               </div>
             </div>
           </div>
@@ -220,9 +235,9 @@ export default function PracticeComparison({
             </div>
 
             <div className="flex items-center space-x-3">
-              {feedback && (
+              {currentResult?.feedback && (
                 <div className="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full">
-                  {feedback}
+                  {currentResult.feedback}
                 </div>
               )}
               <button
@@ -235,9 +250,9 @@ export default function PracticeComparison({
             </div>
           </div>
 
-          {lastPrediction && lastPrediction !== targetLabel && (
+          {currentResult && currentResult.prediction && currentResult.prediction !== targetLabel && (
             <div className="mt-2 text-xs text-yellow-300">
-              Detectado: "{lastPrediction}" → Objetivo: "{targetLabel}"
+              Detectado: "{currentResult.prediction}" → Objetivo: "{targetLabel}"
             </div>
           )}
 

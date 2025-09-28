@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Image, AlertCircle, ZoomIn, Download, Eye, X, Maximize2 } from 'lucide-react'
+import { Image, AlertCircle, Download, Eye, X, Maximize2 } from 'lucide-react'
 
 interface ReferenceImageProps {
   imageData?: string
@@ -154,7 +154,6 @@ export default function ReferenceImage({
               alt={`Referencia para ${label} - Vista completa`}
               className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
             />
-            
             <div className="absolute top-4 right-4 flex space-x-3">
               <button
                 onClick={(e) => {
@@ -172,7 +171,6 @@ export default function ReferenceImage({
                 <X className="h-6 w-6" />
               </button>
             </div>
-
             <div className="absolute bottom-4 left-4 bg-black bg-opacity-70 backdrop-blur-sm text-white px-6 py-3 rounded-xl">
               <div className="font-bold text-lg">Referencia: {label}</div>
             </div>
