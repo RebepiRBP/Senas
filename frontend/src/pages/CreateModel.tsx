@@ -37,12 +37,9 @@ export default function CreateModel() {
     samplesPerLabel: 25,
     type: 'standard'
   })
-
   const [newLabel, setNewLabel] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [globalSamples, setGlobalSamples] = useState(25)
   const [currentPreset, setCurrentPreset] = useState<string | null>(null)
 
   const presets: Record<string, PresetConfig> = {
@@ -126,6 +123,7 @@ export default function CreateModel() {
 
   const handleCategoryToggle = (category: string) => {
     if (form.type === 'arithmetic') return
+
     setForm(prev => ({
       ...prev,
       categories: prev.categories.includes(category)
@@ -136,6 +134,7 @@ export default function CreateModel() {
 
   const addLabel = () => {
     if (form.type === 'arithmetic') return
+
     if (newLabel.trim() && !form.labels.includes(newLabel.trim())) {
       setForm(prev => ({
         ...prev,
@@ -147,6 +146,7 @@ export default function CreateModel() {
 
   const removeLabel = (labelToRemove: string) => {
     if (form.type === 'arithmetic') return
+
     setForm(prev => ({
       ...prev,
       labels: prev.labels.filter(label => label !== labelToRemove)
@@ -158,18 +158,19 @@ export default function CreateModel() {
       setError('Por favor completa el nombre del modelo y añade al menos una seña.')
       return
     }
+
     if (form.labels.length < 2) {
       setError('Necesitas al menos 2 señas diferentes para entrenar un modelo.')
       return
     }
+
     setError(null)
     setStep('training')
   }
 
   const handleTrainingComplete = async (trainingData: TrainingData[]) => {
     setStep('processing')
-    setIsProcessing(true)
-    
+   
     try {
       const modelData = {
         name: form.name,
@@ -179,8 +180,9 @@ export default function CreateModel() {
         trainingData,
         type: form.type
       }
+
       const response = await api.post('/models/create', modelData)
-      
+     
       if (response.data.success) {
         navigate('/', {
           state: {
@@ -191,8 +193,6 @@ export default function CreateModel() {
     } catch (err: any) {
       setError('Error al crear el modelo: ' + (err.response?.data?.detail || err.message))
       setStep('training')
-    } finally {
-      setIsProcessing(false)
     }
   }
 
@@ -309,7 +309,7 @@ export default function CreateModel() {
             <ArrowLeft className="h-4 w-4" />
             <span>Volver al inicio</span>
           </button>
-          
+         
           <div className="text-center lg:text-left">
             <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
               Crear Nuevo Modelo
@@ -335,7 +335,7 @@ export default function CreateModel() {
                   Configuración del Modelo
                 </h2>
               </div>
-              
+             
               <div className="p-6 space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -345,8 +345,8 @@ export default function CreateModel() {
                     <button
                       onClick={() => handleTypeChange('standard')}
                       className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        form.type === 'standard' 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
+                        form.type === 'standard'
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -356,12 +356,11 @@ export default function CreateModel() {
                       </div>
                       <p className="text-sm text-gray-600">Para señas generales y personalizadas</p>
                     </button>
-
                     <button
                       onClick={() => handleTypeChange('arithmetic')}
                       className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        form.type === 'arithmetic' 
-                          ? 'border-purple-500 bg-purple-50 shadow-md' 
+                        form.type === 'arithmetic'
+                          ? 'border-purple-500 bg-purple-50 shadow-md'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -436,7 +435,6 @@ export default function CreateModel() {
                       {showAdvanced ? 'Ocultar' : 'Mostrar'}
                     </button>
                   </div>
-
                   {showAdvanced && (
                     <div className="bg-gray-50 rounded-xl p-4 space-y-4">
                       <div>
@@ -458,7 +456,6 @@ export default function CreateModel() {
                           <span>Preciso (100)</span>
                         </div>
                       </div>
-
                       <div className="text-xs text-gray-600 bg-white rounded-lg p-3">
                         <p><strong>Recomendación:</strong> 25-35 muestras ofrecen el mejor balance entre velocidad y precisión.</p>
                       </div>
@@ -475,20 +472,18 @@ export default function CreateModel() {
                   Plantillas Rápidas
                 </h2>
               </div>
-
               <div className="p-6">
                 <p className="text-gray-600 text-sm mb-6">
                   Selecciona una plantilla para comenzar rápidamente con configuraciones optimizadas
                 </p>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {Object.entries(presets).map(([key, preset]) => (
                     <button
                       key={key}
                       onClick={() => loadPreset(key)}
                       className={`p-4 border-2 rounded-xl text-left transition-all hover:shadow-lg ${
-                        currentPreset === key 
-                          ? 'border-blue-500 bg-blue-50 shadow-md' 
+                        currentPreset === key
+                          ? 'border-blue-500 bg-blue-50 shadow-md'
                           : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -524,7 +519,6 @@ export default function CreateModel() {
                   Señas del Modelo
                 </h2>
               </div>
-
               <div className="p-6 space-y-4">
                 {form.type === 'standard' && (
                   <div>
@@ -695,7 +689,7 @@ export default function CreateModel() {
           >
             Cancelar
           </button>
-          
+         
           <button
             onClick={startTraining}
             disabled={!form.name.trim() || form.labels.length < 2}

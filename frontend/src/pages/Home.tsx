@@ -11,8 +11,6 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [filteredModels, setFilteredModels] = useState<Model[]>([])
 
-  const categories = ['all', 'alfabeto', 'números', 'operaciones', 'personalizado']
-
   useEffect(() => {
     let filtered = models
 
@@ -42,8 +40,8 @@ export default function Home() {
     const totalModels = models.length
     const readyModels = models.filter(m => m.status === 'ready').length
     const totalLabels = models.reduce((sum, model) => sum + (model.labels?.length || 0), 0)
-    const avgAccuracy = models.length > 0 
-      ? models.reduce((sum, model) => sum + model.accuracy, 0) / models.length 
+    const avgAccuracy = models.length > 0
+      ? models.reduce((sum, model) => sum + model.accuracy, 0) / models.length
       : 0
 
     return { totalModels, readyModels, totalLabels, avgAccuracy }
@@ -135,7 +133,7 @@ export default function Home() {
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white shadow-sm"
               />
             </div>
-            
+           
             <div className="relative">
               <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <select
@@ -190,7 +188,7 @@ export default function Home() {
                     <span>Crear mi primer modelo</span>
                     <ArrowRight className="h-5 w-5" />
                   </Link>
-                  
+                 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 text-left">
                     <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
                       <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
@@ -199,7 +197,7 @@ export default function Home() {
                       <h4 className="font-semibold text-gray-900 mb-2">Fácil de usar</h4>
                       <p className="text-sm text-gray-600">Interfaz intuitiva que te guía paso a paso</p>
                     </div>
-                    
+                   
                     <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
                       <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
                         <Clock className="h-6 w-6 text-green-600" />
@@ -207,7 +205,7 @@ export default function Home() {
                       <h4 className="font-semibold text-gray-900 mb-2">Entrenamiento rápido</h4>
                       <p className="text-sm text-gray-600">Entrena tu modelo en pocos minutos</p>
                     </div>
-                    
+                   
                     <div className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100">
                       <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-4">
                         <Star className="h-6 w-6 text-purple-600" />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Users, Database, Activity, Settings, Trash2, Download, Upload, Shield, Server, HardDrive, Clock, TrendingUp, UserCheck, AlertTriangle, CheckCircle2, BarChart3, RefreshCw, Zap, Award } from 'lucide-react'
+import { Users, Database, Activity, Settings, Trash2, Download, Shield, Server, HardDrive, Clock, TrendingUp, UserCheck, AlertTriangle, CheckCircle2, BarChart3, RefreshCw, Zap, Award } from 'lucide-react'
 import { api } from '@/services/api'
 
 interface SystemStats {
@@ -50,7 +50,7 @@ export default function Admin() {
 
   const handleUserAction = async (userId: string, action: 'activate' | 'deactivate' | 'delete') => {
     if (performingAction) return
-    
+   
     const user = users.find(u => u.id === userId)
     const confirmMessages = {
       activate: `¿Activar usuario ${user?.username}?`,
@@ -73,7 +73,6 @@ export default function Admin() {
 
   const handleSystemAction = async (action: 'backup' | 'cleanup' | 'reset') => {
     if (performingAction) return
-
     const confirmMessage = {
       backup: '¿Crear backup del sistema?',
       cleanup: '¿Limpiar archivos temporales y logs antiguos?',
@@ -273,14 +272,14 @@ export default function Admin() {
                     </div>
                     <div className="text-sm text-green-700">100% Funcional</div>
                   </div>
-                  
+                 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-gray-50 rounded-xl">
                       <Clock className="h-6 w-6 text-gray-600 mx-auto mb-2" />
                       <div className="text-sm font-medium text-gray-700">Tiempo Activo</div>
                       <div className="text-lg font-bold text-gray-900">{formatUptime(stats.systemUptime)}</div>
                     </div>
-                    
+                   
                     <div className="text-center p-4 bg-gray-50 rounded-xl">
                       <Zap className="h-6 w-6 text-gray-600 mx-auto mb-2" />
                       <div className="text-sm font-medium text-gray-700">Rendimiento</div>
@@ -303,14 +302,14 @@ export default function Admin() {
                       <span className="text-blue-700 font-medium">Usuarios Activos</span>
                       <span className="text-blue-900 font-bold">{users.filter(u => u.isActive).length}</span>
                     </div>
-                    
+                   
                     <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl">
                       <span className="text-green-700 font-medium">Modelos por Usuario</span>
                       <span className="text-green-900 font-bold">
                         {stats.totalUsers > 0 ? Math.round(stats.totalModels / stats.totalUsers) : 0}
                       </span>
                     </div>
-                    
+                   
                     <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-xl">
                       <span className="text-yellow-700 font-medium">Muestras por Modelo</span>
                       <span className="text-yellow-900 font-bold">
@@ -558,7 +557,7 @@ export default function Admin() {
                       <div className="text-sm text-gray-600">Disponibilidad</div>
                     </div>
                   </div>
-                  
+                 
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
                       <span className="text-blue-700 font-medium">Estado del Servidor</span>
@@ -596,7 +595,6 @@ export default function Admin() {
                         </button>
                       </div>
                     </div>
-
                     <div className="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
@@ -608,7 +606,6 @@ export default function Admin() {
                         </button>
                       </div>
                     </div>
-
                     <div className="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                       <div className="flex items-center justify-between">
                         <div>
