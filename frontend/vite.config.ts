@@ -17,4 +17,16 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'mediapipe': ['@mediapipe/hands']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    exclude: ['@mediapipe/hands']
+  }
 })
