@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { Download, Upload, Eye, Search, Filter, Grid, List, MoreVertical, Trash2, Play, Settings, FileText, Calendar, Activity, Zap, Target, X } from 'lucide-react'
+import { useState } from 'react'
+import { Download, Upload, Search, Filter, Grid, List, MoreVertical, Trash2, Play, FileText, Activity, Zap, Target, X } from 'lucide-react'
 import ModelCard from '@/components/ModelCard'
 import ModelMetrics from '@/components/ModelMetrics'
 import ModelStatistics from '@/components/ModelStatistics'
@@ -22,9 +22,6 @@ export default function Models() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const categories = ['all', 'alfabeto', 'números', 'operaciones', 'personalizado']
 
   const filteredModels = models.filter(model => {
     const matchesSearch = model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -74,17 +71,17 @@ export default function Models() {
 
       const blob = new Blob([response.data], { type: 'application/zip' })
       const url = window.URL.createObjectURL(blob)
-      
+     
       const model = models.find(m => m.id === modelId)
       const filename = `${model?.name || 'model'}_${format}.zip`
-      
+     
       const a = document.createElement('a')
       a.style.display = 'none'
       a.href = url
       a.download = filename
       document.body.appendChild(a)
       a.click()
-      
+     
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
     } catch (err: any) {
@@ -185,7 +182,7 @@ export default function Models() {
                     Administra, analiza y optimiza todos tus modelos de reconocimiento
                   </p>
                 </div>
-                
+               
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleImportClick}
@@ -213,7 +210,6 @@ export default function Models() {
                     className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition-all"
                   />
                 </div>
-
                 <div className="relative">
                   <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <select
@@ -228,13 +224,12 @@ export default function Models() {
                     <option value="personalizado">Personalizado</option>
                   </select>
                 </div>
-
                 <div className="flex bg-white rounded-2xl border border-gray-200 shadow-sm">
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-3 rounded-l-2xl transition-all ${
-                      viewMode === 'grid' 
-                        ? 'bg-blue-600 text-white shadow-md' 
+                      viewMode === 'grid'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -243,8 +238,8 @@ export default function Models() {
                   <button
                     onClick={() => setViewMode('list')}
                     className={`p-3 rounded-r-2xl transition-all ${
-                      viewMode === 'list' 
-                        ? 'bg-blue-600 text-white shadow-md' 
+                      viewMode === 'list'
+                        ? 'bg-blue-600 text-white shadow-md'
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
@@ -349,7 +344,7 @@ export default function Models() {
                             <button className="p-2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-800 rounded-xl shadow-md transition-all backdrop-blur-sm">
                               <MoreVertical className="h-4 w-4" />
                             </button>
-                            
+                           
                             <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all min-w-48">
                               <button
                                 onClick={() => handleViewMetrics(model)}
@@ -360,7 +355,7 @@ export default function Models() {
                                   <span>Ver Métricas</span>
                                 </div>
                               </button>
-                              
+                             
                               <button
                                 onClick={() => handleViewStatistics(model)}
                                 className="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -370,7 +365,6 @@ export default function Models() {
                                   <span>Ver Estadísticas</span>
                                 </div>
                               </button>
-
                               <div className="border-t border-gray-100">
                                 <button
                                   onClick={() => handleExportModel(model.id, 'tfjs')}
@@ -386,7 +380,7 @@ export default function Models() {
                                     <span>Exportar TensorFlow.js</span>
                                   </div>
                                 </button>
-                                
+                               
                                 <button
                                   onClick={() => handleExportModel(model.id, 'onnx')}
                                   disabled={exportingModels.has(model.id)}
@@ -417,7 +411,7 @@ export default function Models() {
                       <div className="col-span-2">Señas</div>
                       <div className="col-span-2">Acciones</div>
                     </div>
-                    
+                   
                     <div className="divide-y divide-gray-100">
                       {filteredModels.map((model) => (
                         <div key={model.id} className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 transition-colors">
@@ -432,11 +426,11 @@ export default function Models() {
                               </div>
                             </div>
                           </div>
-                          
+                         
                           <div className="col-span-6 sm:col-span-2 flex items-center">
                             <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${
-                              model.status === 'ready' 
-                                ? 'bg-green-100 text-green-800' 
+                              model.status === 'ready'
+                                ? 'bg-green-100 text-green-800'
                                 : model.status === 'training'
                                 ? 'bg-yellow-100 text-yellow-800'
                                 : 'bg-red-100 text-red-800'
@@ -444,17 +438,17 @@ export default function Models() {
                               {model.status === 'ready' ? 'Listo' : model.status === 'training' ? 'Entrenando' : 'Error'}
                             </span>
                           </div>
-                          
+                         
                           <div className="col-span-6 sm:col-span-2 flex items-center">
                             <span className="font-semibold text-gray-900">
                               {formatAccuracy(model.accuracy)}
                             </span>
                           </div>
-                          
+                         
                           <div className="col-span-6 sm:col-span-2 flex items-center">
                             <span className="text-gray-900">{model.labels?.length || 0}</span>
                           </div>
-                          
+                         
                           <div className="col-span-6 sm:col-span-2 flex items-center space-x-2">
                             <button
                               onClick={() => window.location.href = `/detection/${model.id}`}
@@ -463,7 +457,7 @@ export default function Models() {
                             >
                               <Play className="h-4 w-4" />
                             </button>
-                            
+                           
                             <button
                               onClick={() => handleViewMetrics(model)}
                               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
@@ -471,7 +465,6 @@ export default function Models() {
                             >
                               <Activity className="h-4 w-4" />
                             </button>
-
                             <button
                               onClick={() => handleViewStatistics(model)}
                               className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
@@ -479,7 +472,6 @@ export default function Models() {
                             >
                               <Target className="h-4 w-4" />
                             </button>
-
                             <div className="relative group">
                               <button
                                 className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
@@ -492,7 +484,7 @@ export default function Models() {
                                   <Download className="h-4 w-4" />
                                 )}
                               </button>
-                              
+                             
                               {!exportingModels.has(model.id) && (
                                 <div className="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all min-w-44">
                                   <button
@@ -510,7 +502,7 @@ export default function Models() {
                                 </div>
                               )}
                             </div>
-                            
+                           
                             <button
                               onClick={() => handleDeleteModel(model.id)}
                               className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -539,7 +531,7 @@ export default function Models() {
               >
                 <span>← Volver a la gestión</span>
               </button>
-              
+             
               <div className="flex items-center space-x-3">
                 {showMetrics && (
                   <>
@@ -600,7 +592,6 @@ export default function Models() {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -615,7 +606,6 @@ export default function Models() {
                     disabled={importing}
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Archivo del Modelo
@@ -628,14 +618,12 @@ export default function Models() {
                     disabled={importing}
                   />
                 </div>
-
                 {selectedFile && (
                   <div className="text-sm text-gray-600">
                     Archivo seleccionado: {selectedFile.name}
                   </div>
                 )}
               </div>
-
               <div className="flex justify-end space-x-3 p-6 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
                 <button
                   onClick={() => setShowImportDialog(false)}

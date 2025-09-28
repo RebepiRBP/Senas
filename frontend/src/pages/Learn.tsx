@@ -14,10 +14,7 @@ export default function Learn() {
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-
   const { models: allModels, loading: modelsLoading } = useModels()
-
-  const categories = ['all', 'alfabeto', 'números', 'operaciones', 'personalizado']
 
   const formatAccuracy = (accuracy: number) => {
     if (accuracy > 1) {
@@ -29,10 +26,10 @@ export default function Learn() {
   const filteredModels = allModels.filter(model => {
     const matchesSearch = model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       model.description.toLowerCase().includes(searchTerm.toLowerCase())
-    
+   
     const matchesCategory = selectedCategory === 'all' ||
       model.categories.some(cat => cat.toLowerCase().includes(selectedCategory))
-    
+   
     return matchesSearch && matchesCategory && model.status === 'ready'
   })
 
@@ -45,7 +42,7 @@ export default function Learn() {
   const fetchModel = async (id: string) => {
     setLoading(true)
     setError(null)
-    
+   
     try {
       const response = await api.get(`/models/${id}`)
       setModel(response.data)
@@ -83,7 +80,7 @@ export default function Learn() {
               <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
               <span>Volver a la lista</span>
             </button>
-            
+           
             <div className="text-center py-12">
               <div className="w-24 h-24 mx-auto mb-8 bg-red-100 rounded-3xl flex items-center justify-center">
                 <BookOpen className="h-12 w-12 text-red-500" />
@@ -112,7 +109,7 @@ export default function Learn() {
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             <span>Volver a la lista</span>
           </button>
-          
+         
           <LearningMode modelId={model.id} modelName={model.name} />
         </div>
       </div>
@@ -133,7 +130,7 @@ export default function Learn() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        
+       
         <div className="mb-8 lg:mb-12">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-6 shadow-lg">
@@ -158,7 +155,7 @@ export default function Learn() {
                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white shadow-sm transition-all"
               />
             </div>
-            
+           
             <div className="relative">
               <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <select
@@ -255,7 +252,6 @@ export default function Learn() {
                         </div>
                         <span className="text-xs text-blue-700">Señas</span>
                       </div>
-
                       <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl">
                         <div className="flex items-center justify-center mb-1">
                           <Star className="h-4 w-4 text-green-600 mr-1" />
@@ -265,7 +261,6 @@ export default function Learn() {
                         </div>
                         <span className="text-xs text-green-700">Precisión</span>
                       </div>
-
                       <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl">
                         <div className="flex items-center justify-center mb-1">
                           <Activity className="h-4 w-4 text-purple-600 mr-1" />
@@ -282,7 +277,7 @@ export default function Learn() {
                         <span>Progreso estimado:</span>
                         <span className="font-medium">~{Math.ceil(model.labels.length * 2)} min</span>
                       </div>
-                      
+                     
                       <div className="flex items-center text-xs text-gray-500">
                         <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
                         <span className="truncate">
@@ -298,6 +293,7 @@ export default function Learn() {
                         <Award className="h-4 w-4 opacity-75" />
                       </div>
                     </div>
+
                   </div>
                 </div>
               ))}
@@ -309,6 +305,7 @@ export default function Learn() {
                 <span>Mostrando {filteredModels.length} de {allModels.length} modelos disponibles</span>
               </div>
             </div>
+
           </>
         )}
       </div>
