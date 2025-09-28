@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { CheckCircle, Circle, RotateCcw, Play, Pause, FastForward, ArrowRight, Settings, Plus, Minus, X, Check, Save, RotateCw, Sparkles, Target, Clock, Zap, Activity, Award, TrendingUp, Camera, Pause as PauseIcon } from 'lucide-react'
+import { CheckCircle, Circle, RotateCcw, Play, ArrowRight, Settings, Plus, Minus, X, Save, RotateCw, Sparkles, Target, Clock, Zap, Activity, Award, TrendingUp, Camera, Pause as PauseIcon } from 'lucide-react'
 import CameraCapture, { CameraCaptureHandle } from './CameraCapture'
 import { TrainingData } from '@/types'
 
@@ -38,11 +38,9 @@ export default function TrainingFlow({
   const [showTrainingConfirm, setShowTrainingConfirm] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showIndividualConfig, setShowIndividualConfig] = useState(false)
-
   const [captureInterval, setCaptureInterval] = useState(300)
   const [positionVariance, setPositionVariance] = useState(false)
   const [qualityFilter, setQualityFilter] = useState(false)
-  const [minConfidence, setMinConfidence] = useState(0.3)
   const [burstMode, setBurstMode] = useState(false)
   const [burstCount, setBurstCount] = useState(5)
   const [globalSamples, setGlobalSamples] = useState(samplesPerLabel)
@@ -61,11 +59,9 @@ export default function TrainingFlow({
   const enabledLabels = labelConfigs.filter(config => config.enabled)
   const currentLabelConfig = enabledLabels[currentLabelIndex]
   const currentLabel = currentLabelConfig?.label
-
   const totalTargetSamples = enabledLabels.reduce((sum, config) => sum + config.targetSamples, 0)
   const currentTotalCaptured = Object.values(capturedSamples).reduce((sum, count) => sum + count, 0)
   const currentLabelCaptured = capturedSamples[currentLabel] || 0
-
   const allLabelsCompleted = enabledLabels.every(config =>
     (capturedSamples[config.label] || 0) >= config.targetSamples
   )
@@ -74,11 +70,9 @@ export default function TrainingFlow({
     lastHandPosition.current = null
     captureHistory.current = []
     consecutiveStaticCaptures.current = 0
-
     if (positionResetTimeout.current) {
       clearTimeout(positionResetTimeout.current)
     }
-
     positionResetTimeout.current = setTimeout(() => {
       lastHandPosition.current = null
       consecutiveStaticCaptures.current = 0
@@ -95,7 +89,6 @@ export default function TrainingFlow({
     if (!snapshot || snapshot.landmarks.length === 0) return
 
     const landmarks = snapshot.landmarks[0]
-
     if (qualityFilter && !isHighQualityCapture(landmarks)) return
 
     let shouldCapture = true
@@ -136,6 +129,7 @@ export default function TrainingFlow({
     setTimeout(() => {
       isCapturingRef.current = false
     }, 30)
+
   }, [currentLabel, captureInterval, positionVariance, qualityFilter])
 
   const isHighQualityCapture = useCallback((landmarks: any[]) => {
@@ -245,12 +239,10 @@ export default function TrainingFlow({
 
     const captureLoop = () => {
       const currentCapturedCount = capturedSamples[currentLabel] || 0
-
       if (currentCapturedCount >= currentLabelConfig.targetSamples) {
         stopAutoCapture()
         return
       }
-
       handleCapture()
     }
 
@@ -439,7 +431,7 @@ export default function TrainingFlow({
           </div>
         </div>
       </div>
-    )
+      )
   }
 
   return (
@@ -455,7 +447,7 @@ export default function TrainingFlow({
                 Entrena tu modelo con datos de alta calidad
               </p>
             </div>
-            
+           
             <div className="flex flex-wrap items-center gap-4">
               <button
                 onClick={() => setShowSettings(!showSettings)}
@@ -464,7 +456,7 @@ export default function TrainingFlow({
                 <Settings className="h-4 w-4" />
                 <span>Configurar</span>
               </button>
-              
+             
               <button
                 onClick={() => {
                   setTempLabelConfigs(labelConfigs)
@@ -476,7 +468,7 @@ export default function TrainingFlow({
                 <span className="hidden sm:inline">Configurar Señas</span>
                 <span className="sm:hidden">Señas</span>
               </button>
-              
+             
               <div className="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm">
                 <div className="text-sm font-medium text-gray-600">Progreso</div>
                 <div className="text-lg font-bold text-blue-600">{Math.round(progress * 100)}%</div>
@@ -500,7 +492,7 @@ export default function TrainingFlow({
                 Configuración de Captura
               </h3>
             </div>
-            
+           
             <div className="p-6 lg:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-6">
@@ -920,13 +912,12 @@ export default function TrainingFlow({
                   Vista de Cámara
                 </h3>
               </div>
-              
+             
               <div className="p-6">
                 <CameraCapture
                   ref={cameraRef}
                   className="h-64 sm:h-80 lg:h-96 rounded-2xl overflow-hidden"
                 />
-
                 {(isCapturing || isAutoCapture) && (
                   <div className="mt-6 text-center">
                     <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 rounded-2xl border border-green-200">
@@ -949,7 +940,7 @@ export default function TrainingFlow({
                   Progreso por Seña
                 </h4>
               </div>
-              
+             
               <div className="p-6">
                 <div className="space-y-4 max-h-80 overflow-y-auto">
                   {enabledLabels.map((config, index) => {
@@ -976,7 +967,7 @@ export default function TrainingFlow({
                             {completed > config.targetSamples ? ` (+${completed - config.targetSamples})` : ''}
                           </span>
                         </div>
-                        
+                       
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full transition-all duration-300 ${

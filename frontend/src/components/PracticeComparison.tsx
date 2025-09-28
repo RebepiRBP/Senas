@@ -57,7 +57,7 @@ export default function PracticeComparison({
   useEffect(() => {
     if (currentResult && currentResult.feedback !== lastFeedback && currentResult.feedback) {
       setLastFeedback(currentResult.feedback)
-      
+     
       if (currentResult.isCorrect && currentResult.confidence > 0.9) {
         setShowCelebration(true)
         setTimeout(() => setShowCelebration(false), 2000)
@@ -147,7 +147,7 @@ export default function PracticeComparison({
     <div className="relative">
       <CameraCapture
         ref={cameraRef}
-        onFrame={(imageData, landmarks) => handleFrame(landmarks)}
+        onFrame={(_, landmarks) => handleFrame(landmarks)}
         showLandmarks={true}
         className="h-96 rounded-lg overflow-hidden"
       />
