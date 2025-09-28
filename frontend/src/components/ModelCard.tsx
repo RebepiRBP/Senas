@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Play, Edit, Trash2, Calendar, Target, Clock, Zap, Activity } from 'lucide-react'
+import { Play, Edit, Trash2, Calendar, Target, Zap, Activity } from 'lucide-react'
 import { Model } from '@/types'
 
 interface ModelCardProps {
