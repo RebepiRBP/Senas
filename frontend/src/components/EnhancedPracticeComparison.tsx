@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { CheckCircle, XCircle, Target, Camera, CameraOff, Play, Pause, RotateCcw, Award, Zap, TrendingUp, Clock, Star } from 'lucide-react'
+import { CheckCircle, XCircle, Target, Camera, CameraOff, Play, RotateCcw, Award, Zap, TrendingUp, Star } from 'lucide-react'
 import CameraCapture, { CameraCaptureHandle } from './CameraCapture'
 import { useLearningComparison } from '@/hooks/useLearningComparison'
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis'
@@ -42,9 +42,10 @@ export default function EnhancedPracticeComparison({
 
   const startCountdown = useCallback(() => {
     if (countdown || isCapturing || showResult) return
-    
+
     let count = 3
     setCountdown(count)
+
     const interval = setInterval(() => {
       count--
       if (count > 0) {
@@ -53,7 +54,6 @@ export default function EnhancedPracticeComparison({
         setCountdown(0)
         setIsCapturing(true)
         clearInterval(interval)
-        
         setTimeout(() => {
           captureAndAnalyze()
         }, 1500)
@@ -79,17 +79,17 @@ export default function EnhancedPracticeComparison({
 
     try {
       const response = await performComparison(snapshot.landmarks[0])
-      
+
       setTimeout(() => {
         const isMatch = response?.prediction?.toLowerCase() === targetLabel.toLowerCase()
         const conf = response?.confidence || 0
-        
+
         const result = {
           isCorrect: isMatch,
           confidence: conf,
           prediction: response?.prediction || 'Error'
         }
-        
+
         setCurrentResult(result)
         setShowResult(true)
         setIsCapturing(false)
@@ -123,7 +123,6 @@ export default function EnhancedPracticeComparison({
           }, 2500)
         }
       }, 1000)
-
     } catch (error) {
       console.error('Error en análisis:', error)
       setCurrentResult({
@@ -150,7 +149,6 @@ export default function EnhancedPracticeComparison({
       const autoTimer = setTimeout(() => {
         startCountdown()
       }, 2000)
-      
       return () => clearTimeout(autoTimer)
     }
   }, [isActive, countdown, isCapturing, showResult, startCountdown])
@@ -245,15 +243,15 @@ export default function EnhancedPracticeComparison({
                 <XCircle className="h-16 w-16 sm:h-20 sm:w-20 text-red-400 mx-auto animate-pulse" />
               )}
             </div>
-            
+
             <div className="text-2xl sm:text-3xl font-bold mb-4">
               {currentResult.isCorrect ? '¡CORRECTO!' : 'Inténtalo otra vez'}
             </div>
-            
+
             <div className="text-base sm:text-lg mb-4 text-gray-300">
               Confianza: <span className="font-bold text-white">{Math.round(currentResult.confidence * 100)}%</span>
             </div>
-            
+
             {!currentResult.isCorrect && (
               <div className="text-sm sm:text-base text-yellow-300 mb-6 bg-black bg-opacity-30 p-3 rounded-xl">
                 Detecté: <span className="font-bold">"{currentResult.prediction}"</span><br/>
@@ -274,6 +272,7 @@ export default function EnhancedPracticeComparison({
                   Reintentar
                 </button>
               )}
+
               <button
                 onClick={restartPractice}
                 className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all shadow-lg text-sm sm:text-base font-medium"
@@ -349,14 +348,14 @@ export default function EnhancedPracticeComparison({
                 {performance.level}
               </span>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               {sessionStats.averageConfidence > 0 && (
                 <div className="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">
                   Confianza: {Math.round(sessionStats.averageConfidence * 100)}%
                 </div>
               )}
-              
+
               {isActive && !countdown && !isCapturing && !showResult && (
                 <button
                   onClick={startCountdown}

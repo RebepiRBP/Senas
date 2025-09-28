@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BookOpen, Target, RotateCcw, Play, Pause, Award, CheckCircle2, X, ChevronLeft, ChevronRight, Star, TrendingUp, Clock, Zap, Activity } from 'lucide-react'
+import { BookOpen, Target, Play, Pause, Award, CheckCircle2, X, ChevronLeft, ChevronRight, Star, TrendingUp, Clock, Zap, Activity } from 'lucide-react'
 import ReferenceImage from './ReferenceImage'
 import EnhancedPracticeComparison from './EnhancedPracticeComparison'
 import { api } from '@/services/api'

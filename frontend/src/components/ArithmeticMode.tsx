@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Calculator, RotateCcw, Volume2, VolumeX, Settings, History, Activity, Target, TrendingUp, Clock, Eye, BarChart3, Zap } from 'lucide-react'
+import { Calculator, RotateCcw, Settings, History, Activity, Target, Clock, Zap, Eye, BarChart3 } from 'lucide-react'
 import CameraCapture, { CameraCaptureHandle } from './CameraCapture'
 import SpeechControls from './SpeechControls'
 import { api } from '@/services/api'
@@ -19,7 +19,7 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
   const [showSettings, setShowSettings] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   const [arithmeticState, setArithmeticState] = useState<ArithmeticState>({
     buffer: '',
     tokens: [],
@@ -58,7 +58,6 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
   const gestureTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const sessionStartTime = useRef<number>(Date.now())
 
-  const DEBOUNCE_TIME = 1500
   const MIN_GESTURE_DURATION = 800
   const COOLDOWN_DURATION = 1200
   const HAND_ABSENCE_THRESHOLD = 1000
@@ -71,16 +70,13 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
   const evaluateExpression = useCallback((tokens: string[]): number | null => {
     try {
       if (tokens.length === 0) return null
-
       const processedTokens = [...tokens]
       let result = parseFloat(processedTokens[0])
-
       if (isNaN(result)) return null
 
       for (let i = 1; i < processedTokens.length; i += 2) {
         const operator = processedTokens[i]
         const operand = parseFloat(processedTokens[i + 1])
-
         if (isNaN(operand)) break
 
         switch (operator) {
@@ -101,7 +97,6 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
             return null
         }
       }
-
       return Math.round(result * 10000) / 10000
     } catch {
       return null
@@ -212,7 +207,6 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
             lastDetectionTime: Date.now()
           }
         }
-
         return prev
       })
     }
@@ -275,14 +269,12 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
     if (!cameraRef.current) return
 
     const snapshot = cameraRef.current.takeSnapshot()
-
     if (!snapshot) {
       processDetection('', 0, false)
       return
     }
 
     const hasHand = snapshot.landmarks && snapshot.landmarks.length > 0
-
     if (!hasHand) {
       processDetection('', 0, false)
       return
@@ -308,7 +300,7 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
     setIsDetecting(true)
     setError(null)
     sessionStartTime.current = Date.now()
-    
+
     setGestureState(prev => ({
       ...prev,
       currentGesture: null,
@@ -329,17 +321,17 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
 
   const stopDetection = useCallback(() => {
     setIsDetecting(false)
-    
+
     if (detectionIntervalRef.current) {
       clearInterval(detectionIntervalRef.current)
       detectionIntervalRef.current = null
     }
-    
+
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current)
       debounceTimeoutRef.current = null
     }
-    
+
     if (gestureTimeoutRef.current) {
       clearTimeout(gestureTimeoutRef.current)
       gestureTimeoutRef.current = null
@@ -405,8 +397,8 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  const successRate = sessionStats.totalGestures > 0 
-    ? Math.round((sessionStats.correctGestures / sessionStats.totalGestures) * 100) 
+  const successRate = sessionStats.totalGestures > 0
+    ? Math.round((sessionStats.correctGestures / sessionStats.totalGestures) * 100)
     : 0
 
   useEffect(() => {
@@ -419,6 +411,7 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
         }))
       }, 1000)
     }
+
     return () => {
       if (interval) clearInterval(interval)
     }
@@ -578,7 +571,7 @@ export default function ArithmeticMode({ modelId, modelName }: ArithmeticModePro
           {showSettings && (
             <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
               <h3 className="text-lg font-semibold">Configuración de Detección</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

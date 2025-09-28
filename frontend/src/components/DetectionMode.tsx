@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Settings, TrendingUp, Activity, Target, Zap, Eye, BarChart3, Clock } from 'lucide-react'
+import { Play, Pause, RotateCcw, Settings, TrendingUp, Activity, Target, Zap, Eye, BarChart3, Clock } from 'lucide-react'
 import CameraCapture, { CameraCaptureHandle } from './CameraCapture'
 import ArithmeticMode from './ArithmeticMode'
 import SpeechControls from './SpeechControls'
@@ -119,6 +119,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
     lastSpokenPrediction.current = ''
     speechCooldown.current = 0
     sessionStartTime.current = Date.now()
+
     setSessionStats({
       totalPredictions: 0,
       correctPredictions: 0,
@@ -173,8 +174,8 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
 
-  const successRate = sessionStats.totalPredictions > 0 
-    ? Math.round((sessionStats.correctPredictions / sessionStats.totalPredictions) * 100) 
+  const successRate = sessionStats.totalPredictions > 0
+    ? Math.round((sessionStats.correctPredictions / sessionStats.totalPredictions) * 100)
     : 0
 
   useEffect(() => {
@@ -217,6 +218,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
             <span className="text-xl lg:text-2xl font-bold text-blue-600">{sessionStats.totalPredictions}</span>
           </div>
           <p className="text-sm font-medium text-gray-600">Predicciones</p>
+          <div className="mt-2 text-xs text-gray-500">Total realizadas</div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
@@ -227,6 +229,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
             <span className="text-xl lg:text-2xl font-bold text-green-600">{successRate}%</span>
           </div>
           <p className="text-sm font-medium text-gray-600">Precisión</p>
+          <div className="mt-2 text-xs text-gray-500">Rendimiento global</div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
@@ -239,6 +242,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
             </span>
           </div>
           <p className="text-sm font-medium text-gray-600">Confianza</p>
+          <div className="mt-2 text-xs text-gray-500">Confianza promedio</div>
         </div>
 
         <div className="bg-white rounded-2xl p-4 lg:p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
@@ -251,6 +255,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
             </span>
           </div>
           <p className="text-sm font-medium text-gray-600">Tiempo</p>
+          <div className="mt-2 text-xs text-gray-500">Duración sesión</div>
         </div>
       </div>
 
@@ -339,7 +344,7 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
           {showSettings && (
             <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
               <h3 className="text-lg font-semibold">Configuración de Detección</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -403,7 +408,6 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
                 Historial
               </h3>
             </div>
-
             <div className="p-6">
               {predictionHistory.length === 0 ? (
                 <div className="text-center py-12">
@@ -450,7 +454,6 @@ export default function DetectionMode({ modelId, modelName, model }: DetectionMo
                   Probabilidades
                 </h3>
               </div>
-
               <div className="p-6">
                 <div className="space-y-3">
                   {Object.entries(currentPrediction.probabilities)
