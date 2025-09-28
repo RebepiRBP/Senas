@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, RefObject, useRef } from 'react'
+import * as mpHands from '@mediapipe/hands'
 
 export const useHandDetection = (
   videoRef: RefObject<HTMLVideoElement>,
@@ -132,13 +133,11 @@ export const useHandDetection = (
         setIsLoading(true)
         setError(null)
         
-        const { Hands } = await import('@mediapipe/hands')
-        
-        const handsInstance = new Hands({
+        const handsInstance = new mpHands.Hands({
           locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`;
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
           }
-        });
+        })
 
         const config = {
           fast: {
