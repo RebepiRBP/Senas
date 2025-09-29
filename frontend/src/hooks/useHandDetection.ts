@@ -17,6 +17,7 @@ export const useHandDetection = (
   const frameCount = useRef(0)
   const processingTimes = useRef<number[]>([])
   const lastFpsUpdate = useRef(Date.now())
+  const frameSkipCounter = useRef(0)
 
   const drawLandmarks = useCallback((results: any) => {
     const canvas = canvasRef.current
@@ -117,7 +118,11 @@ export const useHandDetection = (
     })
 
     setLandmarks(processedLandmarks)
-    onLandmarksDetected?.(processedLandmarks)
+    
+    if (onLandmarksDetected && processedLandmarks.length > 0) {
+      onLandmarksDetected(processedLandmarks)
+    }
+    
     drawLandmarks(results)
 
     const processingTime = window.performance.now() - processingStartTime
@@ -170,20 +175,20 @@ export const useHandDetection = (
         const config = {
           fast: {
             maxNumHands: 2,
-            modelComplexity: 1,
+            modelComplexity: 0,
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
           },
           accurate: {
             maxNumHands: 2,
             modelComplexity: 1,
-            minDetectionConfidence: 0.8,
-            minTrackingConfidence: 0.8
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.7
           },
           hybrid: {
             maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.7,
+            modelComplexity: 0,
+            minDetectionConfidence: 0.6,
             minTrackingConfidence: 0.6
           }
         }
@@ -214,7 +219,7 @@ export const useHandDetection = (
 
     let animationId: number
 
-    const targetFps = mode === 'fast' ? 30 : mode === 'accurate' ? 15 : 20
+    const targetFps = mode === 'fast' ? 24 : mode === 'accurate' ? 12 : 18
     const frameInterval = 1000 / targetFps
 
     const processVideo = async () => {
@@ -231,13 +236,19 @@ export const useHandDetection = (
         !isProcessing.current &&
         now - lastProcessTime.current >= frameInterval
       ) {
-        try {
-          isProcessing.current = true
-          lastProcessTime.current = now
-          await hands.send({ image: video })
-        } catch (err) {
-          console.error('Hand detection error:', err)
-          isProcessing.current = false
+        frameSkipCounter.current++
+        
+        if (frameSkipCounter.current >= 1) {
+          frameSkipCounter.current = 0
+          
+          try {
+            isProcessing.current = true
+            lastProcessTime.current = now
+            await hands.send({ image: video })
+          } catch (err) {
+            console.error('Hand detection error:', err)
+            isProcessing.current = false
+          }
         }
       }
 
