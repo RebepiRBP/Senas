@@ -21,30 +21,29 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
     const [isInitializing, setIsInitializing] = useState(false)
     const [videoReady, setVideoReady] = useState(false)
     const [frameCount, setFrameCount] = useState(0)
-    const lastFrameTime = useRef(0)
-    const frameThrottle = 100
+    const [isCapturingFrame, setIsCapturingFrame] = useState(false)
 
     const { isActive, error, startCamera, stopCamera } = useCamera(videoRef)
 
     const takeSnapshot = useCallback(() => {
       const video = videoRef.current
       const canvas = canvasRef.current
-
+     
       if (!video || !canvas || !videoReady) return null
       if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) return null
 
       try {
         canvas.width = video.videoWidth
         canvas.height = video.videoHeight
-
+       
         const ctx = canvas.getContext('2d')
         if (ctx) {
           ctx.save()
           ctx.scale(-1, 1)
           ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height)
           ctx.restore()
-
-          const imageData = canvas.toDataURL('image/jpeg', 0.85)
+         
+          const imageData = canvas.toDataURL('image/jpeg', 0.9)
           return { imageData, landmarks }
         }
       } catch (err) {
@@ -58,24 +57,22 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
     }))
 
     const captureFrame = useCallback(() => {
-      if (!onFrame || !videoReady || !isActive) return
-
-      const now = Date.now()
-      if (now - lastFrameTime.current < frameThrottle) return
-
-      lastFrameTime.current = now
-
+      if (!onFrame || !videoReady || !isActive || isCapturingFrame) return
+     
+      setIsCapturingFrame(true)
       const snapshot = takeSnapshot()
       if (snapshot) {
         onFrame(snapshot.imageData, snapshot.landmarks)
         setFrameCount(prev => prev + 1)
       }
-    }, [onFrame, takeSnapshot, videoReady, isActive])
+     
+      setTimeout(() => setIsCapturingFrame(false), 16)
+    }, [onFrame, takeSnapshot, videoReady, isActive, isCapturingFrame])
 
     useEffect(() => {
       if (!isActive || !onFrame) return
 
-      const intervalId = setInterval(captureFrame, frameThrottle)
+      const intervalId = setInterval(captureFrame, 33)
       return () => clearInterval(intervalId)
     }, [isActive, captureFrame, onFrame])
 
@@ -119,12 +116,13 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
       setVideoReady(false)
       setIsInitializing(false)
       setFrameCount(0)
+      setIsCapturingFrame(false)
     }, [stopCamera])
 
     return (
-      <div
+      <div 
         className={`relative bg-gradient-to-br from-gray-900 to-black rounded-3xl overflow-hidden w-full shadow-2xl border border-gray-700 ${className}`}
-        style={{
+        style={{ 
           height: 'auto',
           minHeight: '300px',
           aspectRatio: '4/3'
@@ -141,9 +139,9 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
             transform: 'scaleX(-1)'
           }}
         />
-
+       
         <canvas ref={canvasRef} className="hidden" />
-
+       
         {showLandmarks && isActive && videoReady && (
           <HandLandmarks
             videoRef={videoRef}
