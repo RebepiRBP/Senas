@@ -120,9 +120,9 @@ const CameraCapture = forwardRef<CameraCaptureHandle, CameraCaptureProps>(
     }, [stopCamera])
 
     return (
-      <div
+      <div 
         className={`relative bg-gradient-to-br from-gray-900 to-black rounded-3xl overflow-hidden w-full shadow-2xl border border-gray-700 ${className}`}
-        style={{
+        style={{ 
           height: 'auto',
           minHeight: '300px',
           aspectRatio: '4/3'
