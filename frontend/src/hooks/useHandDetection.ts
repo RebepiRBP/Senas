@@ -11,7 +11,7 @@ export const useHandDetection = (
   const [error, setError] = useState<string | null>(null)
   const [hands, setHands] = useState<any>(null)
   const [performanceStats, setPerformanceStats] = useState({ fps: 0, avgProcessingTime: 0 })
- 
+
   const lastProcessTime = useRef(0)
   const isProcessing = useRef(false)
   const frameCount = useRef(0)
@@ -21,20 +21,15 @@ export const useHandDetection = (
   const drawLandmarks = useCallback((results: any) => {
     const canvas = canvasRef.current
     const video = videoRef.current
-   
     if (!canvas || !video) return
-
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
       for (const handLandmarks of results.multiHandLandmarks) {
         ctx.strokeStyle = '#00FF00'
         ctx.lineWidth = 2
         ctx.fillStyle = '#FF0000'
-
         const connections = [
           [0, 1], [1, 2], [2, 3], [3, 4],
           [0, 5], [5, 6], [6, 7], [7, 8],
@@ -43,33 +38,27 @@ export const useHandDetection = (
           [13, 17], [17, 18], [18, 19], [19, 20],
           [0, 17]
         ]
-
         ctx.beginPath()
         for (const [start, end] of connections) {
           const startLandmark = handLandmarks[start]
           const endLandmark = handLandmarks[end]
-         
           if (startLandmark && endLandmark) {
             const startX = (1 - startLandmark.x) * canvas.width
             const startY = startLandmark.y * canvas.height
             const endX = (1 - endLandmark.x) * canvas.width
             const endY = endLandmark.y * canvas.height
-           
             ctx.moveTo(startX, startY)
             ctx.lineTo(endX, endY)
           }
         }
         ctx.stroke()
-
         for (let i = 0; i < handLandmarks.length; i++) {
           const landmark = handLandmarks[i]
           const x = (1 - landmark.x) * canvas.width
           const y = landmark.y * canvas.height
-         
           ctx.beginPath()
           ctx.arc(x, y, 3, 0, 2 * Math.PI)
           ctx.fill()
-         
           if ([0, 4, 8, 12, 16, 20].includes(i)) {
             ctx.beginPath()
             ctx.arc(x, y, 5, 0, 2 * Math.PI)
@@ -87,16 +76,13 @@ export const useHandDetection = (
   const updatePerformanceStats = useCallback((processingTime: number) => {
     frameCount.current++
     processingTimes.current.push(processingTime)
-   
     if (processingTimes.current.length > 30) {
       processingTimes.current.shift()
     }
-   
     const now = Date.now()
     if (now - lastFpsUpdate.current >= 1000) {
       const fps = frameCount.current
       const avgProcessingTime = processingTimes.current.reduce((a, b) => a + b, 0) / processingTimes.current.length
-     
       setPerformanceStats({ fps, avgProcessingTime })
       frameCount.current = 0
       lastFpsUpdate.current = now
@@ -105,9 +91,7 @@ export const useHandDetection = (
 
   const onResults = useCallback((results: any) => {
     const processingStartTime = window.performance.now()
-   
     const detectedLandmarks = results.multiHandLandmarks || []
-   
     const processedLandmarks = detectedLandmarks.map((handLandmarks: any) => {
       return handLandmarks.map((landmark: any) => ({
         x: landmark.x,
@@ -115,14 +99,11 @@ export const useHandDetection = (
         z: landmark.z
       }))
     })
-
     setLandmarks(processedLandmarks)
     onLandmarksDetected?.(processedLandmarks)
     drawLandmarks(results)
-   
     const processingTime = window.performance.now() - processingStartTime
     updatePerformanceStats(processingTime)
-   
     isProcessing.current = false
   }, [drawLandmarks, onLandmarksDetected, updatePerformanceStats])
 
@@ -131,27 +112,22 @@ export const useHandDetection = (
       try {
         setIsLoading(true)
         setError(null)
-        
         const script = document.createElement('script')
-        script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/hands.js'
+        script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js'
         script.crossOrigin = 'anonymous'
-        
         await new Promise((resolve, reject) => {
           script.onload = resolve
           script.onerror = reject
           document.head.appendChild(script)
         })
-
         if (!(window as any).Hands) {
           throw new Error('MediaPipe Hands not loaded')
         }
-
         const handsInstance = new (window as any).Hands({
           locateFile: (file: string) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/${file}`
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
           }
         })
-
         const config = {
           fast: {
             maxNumHands: 2,
@@ -172,7 +148,6 @@ export const useHandDetection = (
             minTrackingConfidence: 0.6
           }
         }
-
         handsInstance.setOptions(config[mode])
         handsInstance.onResults(onResults)
         setHands(handsInstance)
@@ -187,9 +162,7 @@ export const useHandDetection = (
         setIsLoading(false)
       }
     }
-
     initializeHands()
-
     return () => {
       if (hands && typeof hands.close === 'function') {
         try {
@@ -203,15 +176,12 @@ export const useHandDetection = (
 
   useEffect(() => {
     if (!hands || isLoading) return
-
     let animationId: number
     const targetFps = mode === 'fast' ? 30 : mode === 'accurate' ? 15 : 20
     const frameInterval = 1000 / targetFps
-
     const processVideo = async () => {
       const video = videoRef.current
       const now = Date.now()
-     
       if (
         video &&
         video.readyState >= 2 &&
@@ -225,7 +195,6 @@ export const useHandDetection = (
         try {
           isProcessing.current = true
           lastProcessTime.current = now
-          
           if (hands && typeof hands.send === 'function') {
             await hands.send({ image: video })
           } else {
@@ -237,12 +206,9 @@ export const useHandDetection = (
           onResults({ multiHandLandmarks: [] })
         }
       }
-
       animationId = requestAnimationFrame(processVideo)
     }
-
     processVideo()
-
     return () => {
       if (animationId) cancelAnimationFrame(animationId)
     }
